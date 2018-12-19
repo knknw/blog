@@ -1,0 +1,69 @@
+ <!-- 发表文章页面 -->
+<%- include('../common/header.ejs') %>  <!-- 公共头部 -->
+
+<link rel="stylesheet" href="/node_modules/mditor/dist/css/mditor.min.css">
+<script src="/node_modules/jquery/dist/jquery.min.js"></script>
+<script src="/node_modules/mditor/dist/js/mditor.min.js"></script>
+
+<div class="container">
+  <h1>发表文章页</h1>
+  <hr>
+  <form id="form">
+    <div class="form-group">
+      <label>文章标题：</label>
+      <input type="text" name="title" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label>文章内容：</label>
+      <textarea  name="content" class="form-control" id="editor"></textarea>
+    </div>
+
+    <div class="form-group">
+      <input type="submit" value="发表文章" class="btn btn-primary">
+    </div>
+  </form>
+</div>
+
+<script>
+
+  $(function () {
+    var mditor = Mditor.fromTextarea(document.getElementById('editor'));
+
+    //获取或设置编辑器的值
+    mditor.on('ready', function () {
+      //console.log(mditor.value);
+     
+    });
+    $('#form').on('submit',function(){
+      
+     //console.log( $('#form').serialize())
+        $.ajax({
+          url:'/article/add',
+          type:'post',
+          data:$('#form').serialize(),
+          success:function(result){
+            alert(result.msg)
+            if(result.status === 200) {
+                //拼接result.articleId 是文章id便于渲染文章列表用
+              location.href = '/article/info/' + result.articleId
+            }
+          },
+          error: function (err) {
+          // console.log(err)
+          alert(err.responseJSON.msg)
+          if (err.responseJSON.status === 401) {
+            //重新打开一个页面提示发表错误信息
+            let newWindow = window.open('about:blank')
+            newWindow.location = '/login/reauth'
+          }
+        }
+        })
+          // 阻止浏览器默认行为
+       return false
+      })
+  })
+
+</script>
+
+<%- include('../common/footer.ejs') %>   <!-- 公共头部 -->
